@@ -1,0 +1,30 @@
+FROM node:14.15.1-alpine3.9 AS development
+
+WORKDIR /usr/brand/Documents/projects/Node.js/bleek-dot-tech-server
+
+COPY package*.json ./
+
+RUN npm install glob rimraf
+
+RUN npm install --only-development
+
+COPY . .
+
+RUN npm run build
+
+FROM node:14.15.1-alpine3.9 AS production
+
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
+
+WORKDIR /usr/brand/Documents/projects/Node.js/bleek-dot-tech-server
+
+COPY package*.json
+
+RUN npm install --only=production
+
+COPY . .
+
+COPY --from=development /usr/brand/Documents/
+
+CMD ["node", "dist/main"]
